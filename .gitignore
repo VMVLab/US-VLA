@@ -1,0 +1,9 @@
+# Paper / submission files (kept locally, not published in the repo)
+*.pdf
+
+# Temp / extraction files
+_extracted.txt
+
+# OS junk
+.DS_Store
+Thumbs.db

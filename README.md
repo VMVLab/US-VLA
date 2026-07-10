@@ -1,94 +1,33 @@
 <div align="center">
 
-# ForceU-VLA: A Force-Aware Vision–Language–Action Model for Embodied Ultrasound Scanning
+# US-VLA: An Ultrasound Vision-Language-Action Model for Embodied Abdominal Scanning
 
-<p>
-  <a href="#"><img src="https://img.shields.io/badge/Conference-ACM%20MM%202026-1f6feb?style=flat-square" alt="ACM MM 2026"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b?style=flat-square" alt="arXiv"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Project-Page-2ea44f?style=flat-square" alt="Project Page"></a>
-  <a href="#"><img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"></a>
-</p>
-
-**Official repository for the ACM MM 2026 paper<br/>
-_"ForceU-VLA: A Force-Aware Vision–Language–Action Model for Embodied Ultrasound Scanning"_**
-
-<!-- TODO: fill in the author list -->
-_Author One<sup>1</sup>, Author Two<sup>1</sup>, Author Three<sup>2</sup>, ..._
-
-<!-- TODO: fill in the affiliations -->
-<sup>1</sup> Affiliation One &nbsp;&nbsp; <sup>2</sup> Affiliation Two
+**Accepted to ACM MM 2026**
 
 </div>
 
 ---
 
-## 📖 Overview
+## Overview
 
-**ForceU-VLA** is a **force-aware Vision–Language–Action (VLA)** model for **embodied ultrasound scanning**.
-Given multi-view visual observations, a natural-language task instruction (e.g., *"Acquire the abdominal aorta sagittal (long-axis) view"*), real-time B-mode ultrasound images, and the robot's proprioceptive **contact-force state**, ForceU-VLA predicts a temporally consistent action sequence that drives a robotic arm to perform autonomous, closed-loop ultrasound acquisition.
+**US-VLA** is one of the first **vision–language–action (VLA)** frameworks tailored for **automated abdominal ultrasound scanning**. It explicitly encodes clinical semantic goals and generates sequential probe-manipulation actions under **real-time ultrasound feedback**.
 
-> 📌 **Abstract.** _TODO: paste the final abstract of your paper here._
+Unlike conventional reinforcement-learning or imitation-based ultrasound automation that relies on hand-crafted reward functions or low-level motion supervision, US-VLA augments a pre-trained vision–language model with a dedicated **ultrasound image encoder** and an **ultrasound-aware expert fusion module**. This injects task-relevant ultrasound semantics into the action-generation pathway, enabling closed-loop and standardized acquisition of clinically meaningful standard planes with improved stability and generalization across organs, scanning targets, and diverse clinical conditions.
+
+To support this task, we further construct **US-VLA-Data**, a real-world dataset covering liver and kidney examinations with five clinically defined standard planes, comprising **320 expert scanning trajectories** and approximately **80,000 synchronized timesteps**.
 
 ---
 
-## 🧩 Framework
+## Framework
 
 <div align="center">
-  <img src="pipeline.png" alt="ForceU-VLA Pipeline" width="100%"/>
+  <img src="pipeline.png" alt="US-VLA Framework" width="100%"/>
 </div>
 
-The framework consists of three tightly coupled stages:
+The framework consists of three main components:
 
-- **(a) Vision–Language Encoding.** Multi-view RGB observations (wrist and side cameras) are encoded with **SigLIP** vision encoders, the language task instruction is embedded with a **Tokenizer**, and B-mode ultrasound frames are encoded with a domain-specific **Ultrasound Foundation Model (USFM)**.
+- **(1) Vision–Language Encoding.** RGB images from the wrist-mounted and side-view cameras are encoded by a **SigLIP** visual encoder, and clinical task instructions describing the target standard plane are tokenized and embedded by a language encoder. Ultrasound images are encoded separately by a universal **US foundation model (USFM)** to avoid the domain mismatch between natural and ultrasound images. A **PaliGemma** backbone aligns the visual and language streams into fused vision–language representations.
 
-- **(b) Ultrasound-Aware Expert Fusion.** A **PaliGemma** backbone fuses the vision and language tokens into *V–L fused features*. An ultrasound-aware cross-attention expert then injects sonographic evidence — **queries** are derived from the V–L features while **keys/values** come from the USFM tokens — yielding **V–L–US fused features** via multi-head attention, residual connections, and a gated feed-forward block.
+- **(2) Ultrasound-Aware Expert Fusion.** A cross-modal attention module injects real-time ultrasound feedback into the decision process: the vision–language features serve as **queries** while the ultrasound features serve as **keys/values**, followed by residual connections and a feed-forward expert block that produces ultrasound-modulated action features.
 
-- **(c) Action Expert and Policy Head.** Conditioned on the fused features together with the robot **state** (proprioception and contact force), a flow-matching **Action Expert** denoises sampled noise into action features. The **Action Head Project Layer** decodes these into an executable **action sequence** ($t_0, t_1, \dots$) for closed-loop scanning.
-
----
-
-## ✨ Highlights
-
-- 🩺 **Embodied ultrasound scanning** — a full VLA policy that autonomously acquires standard ultrasound views on a robotic platform.
-- 🤖 **Force-aware control** — contact force is a first-class input, enabling safe and stable probe–skin interaction.
-- 🔀 **Ultrasound-aware fusion** — a dedicated cross-attention expert grounds the vision–language representation in real-time sonographic feedback.
-- 🎯 **Instruction-following** — language-conditioned acquisition of clinically meaningful target views.
-
----
-
-## 🚀 Getting Started
-
-> 🛠️ **Code, models, and dataset are coming soon.** Please ⭐ **star** and **watch** this repository to stay updated.
-
-- [ ] Release the paper / arXiv preprint
-- [ ] Release inference code and pretrained checkpoints
-- [ ] Release training code
-- [ ] Release the ultrasound scanning dataset
-
----
-
-## 📜 Citation
-
-If you find our work useful, please consider citing:
-
-```bibtex
-@inproceedings{forceuvla2026,
-  title     = {ForceU-VLA: A Force-Aware Vision--Language--Action Model for Embodied Ultrasound Scanning},
-  author    = {TODO: Author One and Author Two and others},
-  booktitle = {Proceedings of the ACM International Conference on Multimedia (ACM MM)},
-  year      = {2026}
-}
-```
-
----
-
-## 🙏 Acknowledgements
-
-<!-- TODO: acknowledge funding, labs, and open-source projects your work builds upon. -->
-_TODO: add acknowledgements here._
-
----
-
-## 📧 Contact
-
-For questions, please open an issue or contact <!-- TODO: your email --> `your-email@example.com`.
+- **(3) Action Expert and Policy Head.** Conditioned on the fused representations and the robot state, an action expert and policy head map the features to **continuous, sequential probe-control commands** under closed-loop ultrasound guidance.
