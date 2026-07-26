@@ -75,12 +75,12 @@ The training configs load USFM weights from this path (see `usfm_weights_path` i
 
 Training expects a [LeRobot](https://github.com/huggingface/lerobot) format dataset with the following fields per timestep:
 
-- `state`: 6-D TCP pose `[x, y, z, rx, ry, rz]`
-- `actions`: 6-D absolute TCP pose targets (chunked to an action horizon of 50)
-- `base_rgb`: side-view camera image (224x224x3)
-- `wrist_rgb`: wrist-mounted camera image (224x224x3)
-- `ultrasound_rgb`: ultrasound image (224x224x3)
-- `prompt`: task instruction describing the target standard plane (e.g., "scan the left liver standard plane")
+- `state`: 6-D TCP pose
+- `actions`: 6-D absolute TCP pose targets 
+- `base_rgb`: side-view camera image 
+- `wrist_rgb`: wrist-mounted camera image 
+- `ultrasound_rgb`: ultrasound image 
+- `prompt`: task instruction describing the target standard plane
 
 Replace `your_hf_username/us_vla_data` in `src/openpi/training/config.py` with your own dataset repo id.
 
